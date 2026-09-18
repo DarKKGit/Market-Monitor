@@ -234,8 +234,8 @@ body::before{
 body:has(.big:hover) .scrim,body:has(.gcard:hover) .scrim{background:rgba(2,3,6,.72);backdrop-filter:blur(4px)}
 
 .preview{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.94);
-  width:min(680px,88vw);max-height:480px;overflow:auto;
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.94);
+  width:min(680px,88vw);max-height:min(480px,80vh);overflow:auto;
   background:linear-gradient(160deg,var(--panel),var(--ink2));
   border:1px solid var(--ember);border-radius:12px;padding:26px;
   display:grid;grid-template-columns:1fr 1.2fr;gap:24px;
