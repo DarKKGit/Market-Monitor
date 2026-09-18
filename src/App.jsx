@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Sparkline from './components/Sparkline.jsx';
 import { useSnapshot, useIstClock } from './useSnapshot.js';
-import { num, signed, dirClass, ago, flagFor, briefFor } from './format.js';
+import { num, signed, dirClass, ago, flagFor, briefFor, OZ_TO_KG, COMMODITY_INFO } from './format.js';
 
 export default function App() {
   const { data, error, loading, secondsToRefresh } = useSnapshot();
@@ -15,6 +15,7 @@ export default function App() {
   const global = indices
     .filter((i) => i.region !== 'IN')
     .sort((a, b) => b.changePercent - a.changePercent);
+  const usdInr = (data.currencies?.data || []).find((r) => r.code === 'USD')?.rate;
 
   return (
     <>
@@ -53,13 +54,7 @@ export default function App() {
           <div className="two">
             <div className="tiles" id="commodities">
               {(data.commodities?.data || []).map((c) => (
-                <div className="tile" key={c.name}>
-                  <span className="eyebrow">{c.name} · {c.unit}</span>
-                  <div className="v">{num(c.value)}</div>
-                  <div className={`num ${c.changePercent >= 0 ? 'up' : 'down'}`} style={{ fontSize: 11.5, marginTop: 6 }}>
-                    {signed(c.changePercent)}%
-                  </div>
-                </div>
+                <CommodityTile key={c.name} c={c} usdInr={usdInr} />
               ))}
             </div>
             <div id="currencies"><FxTable rows={data.currencies?.data} /></div>
@@ -328,6 +323,66 @@ function CardPreview({ m, up }) {
       <div className="preview-right">
         <span className="eyebrow">Intraday, 5-minute bars</span>
         <Sparkline data={m.sparkline} up={up} fill height={220} />
+      </div>
+    </div>
+  );
+}
+
+function CommodityTile({ c, usdInr }) {
+  const up = c.changePercent >= 0;
+  const isMetal = c.unit.includes('oz');
+  const unit = isMetal ? 'kg' : 'bbl';
+  const usdPerUnit = isMetal ? c.value * OZ_TO_KG : c.value;
+  const inrPerUnit = usdInr ? usdPerUnit * usdInr : null;
+
+  return (
+    <div className="gcard" style={{ '--photo': `url(${c.photo})` }}>
+      <div className="ex">{isMetal ? 'COMEX' : 'NYMEX / ICE'} · FUTURES</div>
+      <div className="nm">{c.name}</div>
+      <div className="vl">{inrPerUnit != null ? `₹${num(inrPerUnit)}` : `$${num(usdPerUnit)}`} <small style={{ color: 'var(--dim2)', fontSize: 11 }}>/{unit}</small></div>
+      <div className="num" style={{ fontSize: 11, color: 'var(--dim)', marginTop: 2 }}>
+        ${num(usdPerUnit)}/{unit}
+      </div>
+      <div style={{ marginTop: 10 }}>
+        <Sparkline data={c.sparkline} up={up} height={34} />
+      </div>
+      <div className="foot">
+        <span className="sess"><i />1D</span>
+        <span className={`chip ${dirClass(c.changePercent)}`}>{signed(c.changePercent)}%</span>
+      </div>
+      <CommodityPreview c={c} up={up} isMetal={isMetal} unit={unit} usdPerUnit={usdPerUnit} inrPerUnit={inrPerUnit} />
+    </div>
+  );
+}
+
+function CommodityPreview({ c, up, isMetal, unit, usdPerUnit, inrPerUnit }) {
+  const info = COMMODITY_INFO[c.name] || {};
+  return (
+    <div className="preview">
+      <div className="preview-left">
+        <h3>{c.name}</h3>
+        <span className="eyebrow">{isMetal ? 'COMEX' : 'NYMEX / ICE'} futures</span>
+        <p>{info.blurb}</p>
+        <div className="preview-stats">
+          <div><span>Price</span><b className="num">{inrPerUnit != null ? `₹${num(inrPerUnit)}/${unit}` : '—'}</b></div>
+          <div><span>USD equiv</span><b className="num">${num(usdPerUnit)}/{unit}</b></div>
+          <div><span>Change</span><b className={`num ${up ? 'up' : 'down'}`}>{signed(c.changePercent)}%</b></div>
+          {c.dayHigh != null && <div><span>Day range</span><b className="num">{num(c.dayLow)} – {num(c.dayHigh)} {c.unit}</b></div>}
+        </div>
+        <div className="tradeflow">
+          <div>
+            <span className="eyebrow">Top exporters</span>
+            <div className="flagrow">{(info.exporters || []).map((x) => <span key={x.c}>{x.f} {x.c}</span>)}</div>
+          </div>
+          <div>
+            <span className="eyebrow">Top importers</span>
+            <div className="flagrow">{(info.importers || []).map((x) => <span key={x.c}>{x.f} {x.c}</span>)}</div>
+          </div>
+        </div>
+      </div>
+      <div className="preview-right">
+        <span className="eyebrow">1D trend · 5-minute bars</span>
+        <Sparkline data={c.sparkline} up={up} fill height={220} />
       </div>
     </div>
   );

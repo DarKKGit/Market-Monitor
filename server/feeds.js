@@ -225,10 +225,10 @@ export function getCurrencies() {
  * ------------------------------------------------------------------ */
 
 const COMMODITY_SYMBOLS = [
-  { symbol: 'GC=F', name: 'Gold', unit: 'USD/oz' },
-  { symbol: 'SI=F', name: 'Silver', unit: 'USD/oz' },
-  { symbol: 'CL=F', name: 'WTI Crude', unit: 'USD/bbl' },
-  { symbol: 'BZ=F', name: 'Brent Crude', unit: 'USD/bbl' }
+  { symbol: 'GC=F', name: 'Gold', unit: 'USD/oz', photo: '/goldbars.avif' },
+  { symbol: 'SI=F', name: 'Silver', unit: 'USD/oz', photo: '/silverbars.jpeg' },
+  { symbol: 'CL=F', name: 'WTI Crude', unit: 'USD/bbl', photo: '/crudeoil.webp' },
+  { symbol: 'BZ=F', name: 'Brent Crude', unit: 'USD/bbl', photo: '/ship.png' }
 ];
 
 export function getCommodities() {
@@ -236,7 +236,13 @@ export function getCommodities() {
     const settled = await Promise.allSettled(
       COMMODITY_SYMBOLS.map(async (c) => {
         const row = await fetchIndex({ ...c, exchange: 'Futures', region: 'GLOBAL' });
-        return { name: c.name, unit: c.unit, value: row.value, changePercent: row.changePercent };
+        return {
+          name: c.name, unit: c.unit, photo: c.photo,
+          value: row.value, changePercent: row.changePercent,
+          dayHigh: row.dayHigh, dayLow: row.dayLow,
+          // 1-day, 5-minute sparkline — same series fetchIndex already builds for the indices.
+          sparkline: row.sparkline
+        };
       })
     );
     const rows = settled.filter((s) => s.status === 'fulfilled').map((s) => s.value);

@@ -25,6 +25,32 @@ const BRIEFS = {
 };
 export const briefFor = (symbol) => BRIEFS[symbol] || 'Benchmark index tracked on this desk.';
 
+// 1 troy ounce = 31.1034768 grams — the standard unit gold/silver futures are quoted in.
+export const OZ_TO_KG = 1000 / 31.1034768;
+
+export const COMMODITY_INFO = {
+  Gold: {
+    blurb: 'A monetary and jewellery metal — mined supply is small relative to above-ground stock, so price moves mostly track investment demand and central-bank buying.',
+    exporters: [{ f: '🇨🇳', c: 'China' }, { f: '🇦🇺', c: 'Australia' }, { f: '🇷🇺', c: 'Russia' }],
+    importers: [{ f: '🇮🇳', c: 'India' }, { f: '🇨🇳', c: 'China' }, { f: '🇨🇭', c: 'Switzerland' }]
+  },
+  Silver: {
+    blurb: 'Half industrial metal, half store of value — solar panel and electronics demand now rivals investment demand as a price driver.',
+    exporters: [{ f: '🇲🇽', c: 'Mexico' }, { f: '🇵🇪', c: 'Peru' }, { f: '🇨🇳', c: 'China' }],
+    importers: [{ f: '🇮🇳', c: 'India' }, { f: '🇺🇸', c: 'United States' }, { f: '🇬🇧', c: 'United Kingdom' }]
+  },
+  'WTI Crude': {
+    blurb: 'The US benchmark grade, priced at Cushing, Oklahoma — light and sweet, and the reference for North American crude contracts.',
+    exporters: [{ f: '🇺🇸', c: 'United States' }, { f: '🇨🇦', c: 'Canada' }, { f: '🇸🇦', c: 'Saudi Arabia' }],
+    importers: [{ f: '🇨🇳', c: 'China' }, { f: '🇮🇳', c: 'India' }, { f: '🇰🇷', c: 'South Korea' }]
+  },
+  'Brent Crude': {
+    blurb: 'The global seaborne benchmark, sourced from North Sea fields — most of the world\'s traded crude is priced off this contract.',
+    exporters: [{ f: '🇬🇧', c: 'United Kingdom' }, { f: '🇳🇴', c: 'Norway' }, { f: '🇳🇬', c: 'Nigeria' }],
+    importers: [{ f: '🇮🇳', c: 'India' }, { f: '🇨🇳', c: 'China' }, { f: '🇩🇪', c: 'Germany' }]
+  }
+};
+
 export const ago = (iso) => {
   if (!iso) return '';
   const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);

@@ -264,7 +264,8 @@ body::before{
 .scrim{position:fixed;inset:0;background:rgba(2,3,6,0);z-index:70;pointer-events:none;
   transition:background .3s ease,backdrop-filter .3s ease}
 body:has(.big:hover) .scrim,
-body:has(.gcard:hover:not(:nth-child(4n+1)):not(:nth-child(4n))) .scrim{background:rgba(2,3,6,.72);backdrop-filter:blur(4px)}
+body:has(.gg .gcard:hover:not(:nth-child(4n+1)):not(:nth-child(4n))) .scrim,
+body:has(.tiles .gcard:hover) .scrim{background:rgba(2,3,6,.72);backdrop-filter:blur(4px)}
 
 /* leftmost and rightmost columns of the global board opt out of the hover preview entirely */
 .gg .gcard:nth-child(4n+1):hover,
@@ -274,7 +275,7 @@ body:has(.gcard:hover:not(:nth-child(4n+1)):not(:nth-child(4n))) .scrim{backgrou
 
 .preview{
   position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.8);
-  width:min(680px,88vw);max-height:min(480px,80vh);overflow:auto;
+  width:min(680px,88vw);max-height:min(560px,82vh);overflow:auto;
   background:linear-gradient(160deg,var(--panel),var(--ink2));
   border:1px solid var(--ember);border-radius:12px;padding:26px;
   display:grid;grid-template-columns:1fr 1.2fr;gap:24px;
@@ -297,6 +298,9 @@ body:has(.gcard:hover:not(:nth-child(4n+1)):not(:nth-child(4n))) .scrim{backgrou
 .preview-stats b{font-weight:500;font-size:14px}
 .preview-right{display:flex;flex-direction:column;justify-content:center;gap:10px;border-left:1px solid var(--line);padding-left:26px}
 .preview-right .eyebrow{display:block}
+.tradeflow{margin-top:14px;display:grid;gap:10px;border-top:1px solid var(--line);padding-top:12px}
+.flagrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.flagrow span{display:inline-flex;align-items:center;gap:5px;background:var(--ink2);border:1px solid var(--line2);padding:3px 9px;border-radius:99px;font-size:11.5px}
 @media (hover:none){.preview,.scrim{display:none}}
 @media (max-width:640px){.preview{grid-template-columns:1fr}.preview-right{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:16px}}
 
