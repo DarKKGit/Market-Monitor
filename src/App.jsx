@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import Sparkline from './components/Sparkline.jsx';
 import { useSnapshot, useIstClock } from './useSnapshot.js';
 import { num, signed, dirClass, ago, flagFor, briefFor } from './format.js';
@@ -19,18 +20,19 @@ export default function App() {
     <>
       <div className="scrim" />
       <Rail ist={ist} clock={data.clock} seconds={secondsToRefresh} />
+      <Navbar />
       <Tape indices={indices} currencies={data.currencies?.data} commodities={data.commodities?.data} />
 
       <div className="wrap">
         <Hero risk={data.risk} generatedAt={data.generatedAt} indices={indices} />
 
-        <Section title="India desk" note="Benchmark levels, intraday shape and the day's range.">
+        <Section id="markets" title="Indian Indices" note="Benchmark levels, intraday shape and the day's range.">
           <div className="india">
             {india.map((m) => <IndexCard key={m.symbol} m={m} />)}
           </div>
         </Section>
 
-        <Section title="Global board" note="Ranked by today's move, not by index size.">
+        <Section title="Global Indices" note="Ranked by today's move, not by index size.">
           <div className="gg">
             {global.map((g) => <GlobalCard key={g.symbol} g={g} />)}
           </div>
@@ -49,7 +51,7 @@ export default function App() {
 
         <Section title="Commodities & currency" note="The two inputs that turn a global move into an Indian one.">
           <div className="two">
-            <div className="tiles">
+            <div className="tiles" id="commodities">
               {(data.commodities?.data || []).map((c) => (
                 <div className="tile" key={c.name}>
                   <span className="eyebrow">{c.name} · {c.unit}</span>
@@ -60,11 +62,11 @@ export default function App() {
                 </div>
               ))}
             </div>
-            <FxTable rows={data.currencies?.data} />
+            <div id="currencies"><FxTable rows={data.currencies?.data} /></div>
           </div>
         </Section>
 
-        <Section title="What moved the tape" note="Live headlines from Google News, grouped by desk.">
+        <Section id="news" title="What moved the tape" note="Live headlines from Google News, grouped by desk.">
           <div className="news">
             {(data.news?.data || []).slice(0, 8).map((n, i) => (
               <a className="nitem" key={i} href={n.url} target="_blank" rel="noreferrer">
@@ -149,7 +151,7 @@ function Hero({ risk, generatedAt, indices }) {
   const green = indices.filter((i) => i.changePercent > 0).length;
   const score = risk?.score ?? 50;
   return (
-    <div className="hero"><div className="hero-grid">
+    <div className="hero" id="overview"><div className="hero-grid">
       <div>
         <span className="eyebrow">
           Snapshot · {new Date(generatedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -195,12 +197,65 @@ function Hero({ risk, generatedAt, indices }) {
   );
 }
 
-function Section({ title, note, children }) {
+function Section({ id, title, note, children }) {
   return (
-    <section>
+    <section id={id}>
       <div className="sec-head"><div><h2>{title}</h2><p>{note}</p></div></div>
       {children}
     </section>
+  );
+}
+
+function Navbar() {
+  return (
+    <nav className="navbar"><div className="wrap navbar-in">
+      <div className="navlinks">
+        <a className="navlink active" href="#overview"><i className="fa-solid fa-chart-line" /> Overview</a>
+        <a className="navlink" href="#markets"><i className="fa-solid fa-building-columns" /> Markets</a>
+        <a className="navlink" href="#commodities"><i className="fa-solid fa-coins" /> Commodities</a>
+        <a className="navlink" href="#currencies"><i className="fa-solid fa-money-bill-transfer" /> Currencies</a>
+        <a className="navlink" href="#news"><i className="fa-solid fa-newspaper" /> News</a>
+      </div>
+      <label className="navsearch">
+        <i className="fa-solid fa-magnifying-glass" />
+        <input type="text" placeholder="Search markets, assets, news, etc...." />
+      </label>
+      <ProfileMenu />
+    </div></nav>
+  );
+}
+
+function ProfileMenu() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const onDocClick = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, []);
+
+  return (
+    <div className="profile" ref={ref}>
+      <button className="profile-btn" onClick={() => setOpen((o) => !o)} aria-label="Account menu">
+        <span className="avatar">GU</span>
+      </button>
+      {open && (
+        <div className="profile-menu">
+          <div className="profile-head">
+            <span className="avatar lg">GU</span>
+            <div>
+              <b>Guest User</b>
+              <span className="eyebrow">Viewing as guest</span>
+            </div>
+          </div>
+          <a className="menu-item" href="#"><i className="fa-solid fa-id-card" /> Profile Details</a>
+          <a className="menu-item" href="#"><i className="fa-solid fa-briefcase" /> Portfolio Information</a>
+          <a className="menu-item" href="#"><i className="fa-solid fa-location-dot" /> Location Based Analysis</a>
+          <button className="menu-item logout"><i className="fa-solid fa-right-from-bracket" /> Log Out</button>
+        </div>
+      )}
+    </div>
   );
 }
 
